@@ -5,6 +5,12 @@ The application utilizes *customtkinter* for the graphical interface and interac
 <br>
 The scraper can be used to gather training data for artificial intelligence models related to text analysis, text generation, or classification.
 
+<figure>
+<img src="img/image.png">
+<figcaption align = "center"><i>App preview</i></figcaption>
+</figure>
+
+
 ## Getting started
 
 To get started with this project, you can follow these steps:
