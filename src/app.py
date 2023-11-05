@@ -1,10 +1,13 @@
 import tkinter as tk
+import customtkinter as ctk
 import sqlite3
 from tekstowo_scraper import song_scraper
+import threading
 
 
 class TekstowoScraperApp:
     def __init__(self, root):
+        # Initializes the application interface and necessary database connections.
         self.root = root
         self.root.title("tekstowo.pl lyrics scraper")
         self.root.resizable(False, False)
@@ -14,51 +17,60 @@ class TekstowoScraperApp:
         self.cursor.execute(
             """CREATE TABLE IF NOT EXISTS artists (id INTEGER PRIMARY KEY, artist_name TEXT, url TEXT)"""
         )
-        self.top_frame = tk.Frame(root)
+        self.top_frame = ctk.CTkFrame(root)
         self.top_frame.pack(side=tk.TOP, pady=10)
 
-        self.left_frame = tk.Frame(root)
+        self.left_frame = ctk.CTkFrame(root)
         self.left_frame.pack(side=tk.LEFT, padx=10)
-        self.right_frame = tk.Frame(root)
+        self.right_frame = ctk.CTkFrame(root)
         self.right_frame.pack(side=tk.RIGHT, padx=10)
 
-        self.search_label = tk.Label(self.top_frame, text="Search for an artist:")
+        self.search_label = ctk.CTkLabel(self.top_frame, text="Search for an artist:")
         self.search_label.pack()
 
-        self.search_entry = tk.Entry(self.top_frame)
-        self.search_entry.pack()
+        self.search_entry = ctk.CTkEntry(self.top_frame)
+        self.search_entry.pack(pady=5)
 
-        self.search_button = tk.Button(
+        self.search_button = ctk.CTkButton(
             self.top_frame, text="Search", command=self.search_artists
         )
-        self.search_button.pack()
+        self.search_button.pack(pady=5)
 
-        self.scrap_button = tk.Button(self.top_frame, text="Scrap", command=self.scrap)
-        self.scrap_button.pack()
+        self.scrap_button = ctk.CTkButton(
+            self.top_frame, text="Scrap", command=self.scrap
+        )
+        self.scrap_button.pack(pady=5)
 
-        self.results_label = tk.Label(self.left_frame, text="Search results:")
+        self.results_label = ctk.CTkLabel(self.left_frame, text="Search results:")
         self.results_label.pack()
 
-        self.results_listbox = tk.Listbox(self.left_frame, width=40)
+        self.results_listbox = tk.Listbox(
+            self.left_frame, width=40, background="#242424", foreground="white"
+        )
         self.results_listbox.pack()
 
-        self.selected_label = tk.Label(self.right_frame, text="Selected artists:")
+        self.selected_label = ctk.CTkLabel(self.right_frame, text="Selected artists:")
         self.selected_label.pack()
 
-        self.selected_listbox = tk.Listbox(self.right_frame, width=40)
+        self.selected_listbox = tk.Listbox(
+            self.right_frame, width=40, background="#242424", foreground="white"
+        )
         self.selected_listbox.pack()
 
-        self.add_button = tk.Button(
+        self.add_button = ctk.CTkButton(
             self.left_frame, text="Add", command=self.add_artist
         )
-        self.add_button.pack()
+        self.add_button.pack(pady=5)
 
-        self.remove_button = tk.Button(
+        self.remove_button = ctk.CTkButton(
             self.right_frame, text="Remove", command=self.remove_artist
         )
-        self.remove_button.pack()
+        self.remove_button.pack(pady=5)
 
     def search_artists(self):
+        """
+        Retrieves and displays artists from the database based on the search term entered.
+        """
         search_term = self.search_entry.get()
         self.results_listbox.delete(0, tk.END)
 
@@ -72,19 +84,31 @@ class TekstowoScraperApp:
             self.results_listbox.insert(tk.END, row[0] + " ID: " + str(row[1]))
 
     def add_artist(self):
+        """
+        Adds the selected artist from the search results to the list of selected artists.
+        """
         selected_artist = self.results_listbox.get(tk.ACTIVE)
         if selected_artist not in self.selected_listbox.get(0, tk.END):
             self.selected_listbox.insert(tk.END, selected_artist)
 
     def remove_artist(self):
+        """
+        Removes the selected artist from the list of selected artists.
+        """
         selected_index = self.selected_listbox.curselection()
         if selected_index:
             self.selected_listbox.delete(selected_index[0])
 
     def run(self):
+        """
+        Initiates the main loop of the application.
+        """
         self.root.mainloop()
 
     def scrap(self):
+        """
+        Initiates the scraping process for lyrics based on the selected artists, utilizing multithreading to prevent freezing the GUI.
+        """
         urls = []
         for artist in self.selected_listbox.get(0, tk.END):
             artist_id = int(artist.split()[-1])
@@ -94,10 +118,14 @@ class TekstowoScraperApp:
             result = self.cursor.fetchone()
             urls.append(result)
 
-        song_scraper(urls)
+        def perform_scraping():
+            song_scraper(urls)
+
+        scraping_thread = threading.Thread(target=perform_scraping)
+        scraping_thread.start()
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = ctk.CTk()
     app = TekstowoScraperApp(root)
     app.run()

@@ -1,7 +1,7 @@
 # Tekstowo-Lyrics-Scraper
 
 This repository contains a lyrics scraper application that gathers song lyrics from tekstowo.pl.
-The application utilizes *tkinter* for the graphical interface and interacts with an *SQLite* database. It allows users to search for artists, select specific performers, and scrape song lyrics from the tekstowo.pl website.
+The application utilizes *customtkinter* for the graphical interface and interacts with an *SQLite* database. It allows users to search for artists, select specific performers, and scrape song lyrics from the tekstowo.pl website.
 <br>
 The scraper can be used to gather training data for artificial intelligence models related to text analysis, text generation, or classification.
 
